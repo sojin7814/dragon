@@ -103,7 +103,7 @@ export function setPwaBusy(value: boolean): void {
     releaseLock();
   }
   if (busy && (registration?.waiting || pendingReload)) {
-    publish({ update: 'blocked', message: '작성 또는 파일 작업이 끝난 뒤 새 버전을 적용할게요.' });
+    publish({ update: 'blocked', message: '작성·파일 작업·음악 재생이 끝난 뒤 새 버전을 적용할게요.' });
   }
   if (!busy) queueAutoUpdate();
 }

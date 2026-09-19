@@ -15,6 +15,7 @@ import RestPlans from './RestPlans';
 import InstallPanel from './InstallPanel';
 import { getInstallState, subscribeInstall, requestInstall } from './install';
 import CompareCalendar from './CompareCalendar';
+import MusicPlayer from './MusicPlayer';
 
 type Page = 'settings' | 'help' | 'share' | 'month' | 'compare' | null;
 const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -31,6 +32,7 @@ export default function App() {
   const [welcomeTheme, setWelcomeTheme] = useState<Theme>(() => { try { const value = localStorage.getItem(`${STORAGE_KEY}_theme`); return value === 'dark' || value === 'light' ? value : 'system'; } catch { return 'system'; } });
   const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('light');
   const [themeBusy, setThemeBusy] = useState(false);
+  const [musicBusy, setMusicBusy] = useState(false);
   const [chosen, setChosen] = useState<Group | null>(null);
   const [onboardingConfirm, setOnboardingConfirm] = useState(false);
   const [installState, setInstallState] = useState(getInstallState);
@@ -39,7 +41,7 @@ export default function App() {
   const [online, setOnline] = useState(navigator.onLine);
   const [pwa, setPwa] = useState<PwaState>({ update: 'none', offlineReady: false, message: '' });
   const [pickerYear, setPickerYear] = useState(Number(month.slice(0, 4)));
-  const busy = Boolean(page || editing || planning || themeBusy || installState.status === 'prompting' || (!data && onboardingConfirm) || loadError || error || external);
+  const busy = Boolean(page || editing || planning || themeBusy || musicBusy || installState.status === 'prompting' || (!data && onboardingConfirm) || loadError || error || external);
   const busyRef = useRef(busy); busyRef.current = busy;
   useEffect(() => startPwa(setPwa), []);
   useEffect(() => subscribeInstall(setInstallState), []);
@@ -114,6 +116,7 @@ export default function App() {
         <aside className="calendar-aside"><button type="button" className="next-rest" aria-label="다가오는 나의 휴무 · 계획 남기기" disabled={!upcoming} onClick={() => upcoming && setPlanning(upcoming)}><div className="rest-header"><span className="eyebrow">YOUR NEXT BREAK</span><Sprout size={28} strokeWidth={1.4} /></div><p>{upcoming && upcoming.start <= today ? '지금은 쉬어가는 시간' : '다가오는 나의 휴무'}</p><h2>{upcoming ? <>{readableDate(upcoming.start)}{upcoming.end !== upcoming.start && <span>— {readableDate(upcoming.end)}</span>}</> : '휴무를 확인해주세요'}</h2><div className="rest-foot"><span>{GROUP_NAMES[currentGroup!]} · 계획 남기기</span><CalendarDays size={19} /></div></button>
           {data.groupChanges.some(c => c.date > today) && <button className="notice upcoming-group" onClick={() => setPage('settings')}>{[...data.groupChanges].filter(c => c.date > today).sort((a,b) => a.date.localeCompare(b.date)).slice(0, 1).map(c => <span key={c.id}>{readableDate(c.date)}부터 {GROUP_NAMES[c.group]}으로 변경 예정</span>)}<ChevronRight size={18} /></button>}
           <button className="quick-add" onClick={() => setEditing(today)}><Plus size={19} />일정이나 메모 남기기<ArrowUpRight size={19} /></button>
+          <MusicPlayer onBusyChange={setMusicBusy} />
         </aside></div>
         <footer className="app-footer"><span><i className="dot off-dot" />{pwa.offlineReady ? '오프라인 사용 준비됨' : '이 기기에 기록 저장'} · 로그인 없이 나만의 달력</span><p className="creator-note">황소진 캐디의 명령으로 제작하게 되었습니다. 오류 및 불편사항은 황소진 캐디에게 요청 하시기 바랍니다.</p></footer>
       </>}
