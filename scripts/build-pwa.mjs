@@ -31,7 +31,12 @@ async function walk(directory) {
   const nested = await Promise.all(entries.map(entry => entry.isDirectory() ? walk(join(directory, entry.name)) : join(directory, entry.name)));
   return nested.flat().sort();
 }
-const paths = (await walk(dist)).filter(path => !['sw.js', '.nojekyll'].includes(relative(dist, path)) && !path.endsWith('.map'));
+const paths = (await walk(dist)).filter(path => {
+  const name = relative(dist, path).split('\\').join('/');
+  // Music is streamed on demand, never downloaded by an app install/update.
+  return !name.startsWith('assets/music/') && !/\.(mp3|lrc)$/i.test(name)
+    && !['sw.js', '.nojekyll'].includes(name) && !name.endsWith('.map');
+});
 const template = await readFile(resolve('assets/service-worker.js'), 'utf8');
 const hash = createHash('sha256');
 hash.update(template);
