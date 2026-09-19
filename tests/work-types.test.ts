@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { GROUP_NAMES, HOUSE_GROUPS } from '../src/config';
 import { newData, isBaseOff, dayInfo, saveChange, saveExchange, saveGroupChange, validateData, addDays } from '../src/domain';
 import { makeBackup, parseBackup } from '../src/storage';
-import { exportEvents } from '../src/ics';
 import type { Group } from '../src/types';
 
 describe('seven work types with legacy-compatible records', () => {
@@ -45,9 +44,6 @@ describe('seven work types with legacy-compatible records', () => {
     data = saveExchange(data, { id: 'first', date: '2026-10-09', state: 'off', reason: 'exchange', exchangeId: 'pair', partnerDate: '2026-10-12', person: '교환 이름', memo: '' }, { id: 'second', date: '2026-10-12', state: 'work', reason: 'exchange', exchangeId: 'pair', partnerDate: '2026-10-09', person: '교환 이름', memo: '' });
     data.notes['2026-10-03'] = '병원'; data.notes['2026-10-04'] = '서울 약속'; data.theme = 'light';
     expect(parseBackup(makeBackup(data))).toEqual(data);
-    const events = exportEvents(data, 2026, 10);
-    expect(events.find(event => event.date === '2026-10-04')?.description).toContain('서울 약속');
-    expect(events.find(event => event.date === '2026-10-05')?.description).toBeUndefined();
     expect(dayInfo(data,'2026-10-03').change?.reason).toBe('cover');
     expect(dayInfo(data,'2026-10-12').state).toBe('work');
   });

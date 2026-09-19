@@ -199,7 +199,7 @@ test('work-state colours match across reasons and footer/theme stay readable wit
       await expect(page.locator('.creator-note')).toHaveText(footer);
       await expect(page.locator('.creator-note')).toHaveCSS('font-size','11px');
       const footerRect=await page.locator('.creator-note').boundingBox();
-      const installRect=await page.getByRole('button',{name:'홈 화면에 설치하는 방법'}).boundingBox();
+      const installRect=await page.locator('.app-footer>span').boundingBox();
       expect(footerRect!.y).toBeGreaterThanOrEqual(installRect!.y+installRect!.height);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
       for(const [date,state] of [['2026-09-24','work'],['2026-09-25','off'],['2026-09-26','work'],['2026-09-27','off']]) await expect(page.getByRole('button',{name:new RegExp(`^${date},`)}).locator('.event-label')).toHaveClass(`event-label ${state}`);

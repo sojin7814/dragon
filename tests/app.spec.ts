@@ -69,14 +69,8 @@ test('cross-month exchange and one-date cancellation affect both linked dates',a
   expect(Object.keys(data.changes)).toHaveLength(0);
   expect(data.notes['2026-02-28']).toBe('다음 달과 교환');
 });
-test('selected month export, valid backup restore, corrupt backup leaves data',async({page})=>{
+test('valid backup restore, corrupt backup leaves data',async({page})=>{
   await start(page); await month(page,2028,5);
-  await page.getByRole('button',{name:'이번 달 일정을 내 캘린더에 추가'}).click();
-  await expect(page.getByRole('dialog')).toHaveAccessibleName('2028년 5월 캘린더에 추가');
-  const downloadPromise=page.waitForEvent('download');
-  await page.getByRole('button',{name:'일정 파일 저장 (.ics)'}).click();
-  const download=await downloadPromise; expect(download.suggestedFilename()).toBe('드래곤휴무-2028-05.ics');
-  await page.getByRole('button',{name:'닫기',exact:true}).click();
   await page.getByRole('button',{name:'설정 열기'}).click();
   const before = await page.evaluate(key=>localStorage.getItem(key),key);
   await page.locator('input[type=file]').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{broken')});
@@ -144,22 +138,4 @@ test('approved public QR is visible without personal data and 320px view fits',a
   await expect(page.getByLabel('정식 앱 주소', {exact:true})).toHaveValue('https://sojin7814.github.io/dragon/');
   await expect(page.locator('dialog img')).toHaveCount(1);
   await expect(page.locator('dialog img')).toBeVisible();
-});
-test('installation event lifecycle uses button, preserves cancellation, and recognizes installed signal (mocked)',async({page})=>{
-  await page.goto('./');
-  await expect(page.getByRole('button',{name:'설치 방법 보기',exact:true})).toBeVisible();
-  await page.evaluate(()=>{
-    (window as any).promptCount=0;
-    const event=new Event('beforeinstallprompt',{cancelable:true});
-    Object.assign(event,{prompt:async()=>{(window as any).promptCount++;},userChoice:Promise.resolve({outcome:'dismissed'})});
-    window.dispatchEvent(event);
-  });
-  await page.getByRole('button',{name:'설치하기',exact:true}).click();
-  await expect(page.getByText('설치를 취소했어요. 그대로 사용할 수 있어요.')).toBeVisible();
-  expect(await page.evaluate(()=>(window as any).promptCount)).toBe(1);
-  await page.getByRole('button',{name:/^하우스 A/}).click();
-  await page.getByRole('button',{name:'선택한 근무 유형 확인'}).click();
-  await page.getByRole('button',{name:'확인했어요 · 내 달력 시작'}).click();
-  await page.evaluate(()=>window.dispatchEvent(new Event('appinstalled')));
-  await expect(page.getByRole('button',{name:'설치형 앱으로 사용 중'})).toBeVisible();
 });

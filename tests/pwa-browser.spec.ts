@@ -145,3 +145,24 @@ test('failed update download leaves the prior version usable offline', async ({ 
   await expect(page.getByRole('heading', { name: '나의 휴무 달력' })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('dragon_calendar_data'))).toBe(prior);
 });
+
+test('an open installation prompt delays update until the user finishes, preserving stored data', async ({ page }) => {
+  await initialize(page);
+  const prior = await page.evaluate(() => localStorage.getItem('dragon_calendar_data'));
+  await page.evaluate(() => {
+    const event = new Event('beforeinstallprompt', { cancelable: true });
+    Object.assign(event, { prompt: async () => {}, userChoice: new Promise(resolve => { (window as any).finishInstall = resolve; }) });
+    window.dispatchEvent(event);
+  });
+  await page.getByRole('button', { name: '홈 화면에 설치', exact: true }).click();
+  await expect(page.getByText('브라우저의 설치 확인창을 확인해주세요.')).toBeVisible();
+  nextWorker = true;
+  expect(await waitForNextWorker(page)).toBe('installed');
+  await expect(page.getByRole('button', { name: '업데이트 적용' })).toBeDisabled();
+  expect(await page.evaluate(async () => Boolean((await navigator.serviceWorker.getRegistration())?.waiting))).toBe(true);
+  const navigation = page.waitForEvent('framenavigated', frame => frame === page.mainFrame());
+  await page.evaluate(() => (window as any).finishInstall({ outcome: 'dismissed' }));
+  await navigation;
+  await expect(page.getByRole('heading', { name: '나의 휴무 달력' })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('dragon_calendar_data'))).toBe(prior);
+});
