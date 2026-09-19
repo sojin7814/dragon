@@ -1,0 +1,59 @@
+{
+  "source": {
+    "filename": "icon-original.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "4313c632ac5955fc8f3a070586ffaa6a5939b9f0a23900f89f64a009f690c8da"
+  },
+  "operation": "Original pixels resized with Lanczos3; no redraw, crop, recolor, or composition changes.",
+  "margin": {
+    "color": "#0d2a1e",
+    "sampledAt": [
+      1253,
+      1253
+    ],
+    "appliesTo": "new padding only"
+  },
+  "maskable": {
+    "width": 512,
+    "contentWidth": 288,
+    "paddingPerEdge": 112,
+    "safeCircleRadius": 204.8
+  },
+  "renderer": {
+    "sharp": "0.35.4",
+    "vips": "8.18.6"
+  },
+  "outputs": [
+    {
+      "filename": "icon-192.png",
+      "width": 192,
+      "height": 192,
+      "sha256": "206c3026d416abffd65f675f5580072729816b9c47823df7322003cc46e12ae8"
+    },
+    {
+      "filename": "icon-512.png",
+      "width": 512,
+      "height": 512,
+      "sha256": "5ff2153696f89e9bcfd4edaa6049b06b7a29edb9abf383a37ca1f7c8a9855530"
+    },
+    {
+      "filename": "apple-touch-icon.png",
+      "width": 180,
+      "height": 180,
+      "sha256": "d678bfc1c15d466d31efba2e47de36a4a31534cf23e15c3292820fc546e8b92d"
+    },
+    {
+      "filename": "favicon-32.png",
+      "width": 32,
+      "height": 32,
+      "sha256": "44c710cd0f22277b8f1d07c9a8158d5619779de0bf0c2bdabf75e9eb332ac579"
+    },
+    {
+      "filename": "maskable-512.png",
+      "width": 512,
+      "height": 512,
+      "sha256": "4c4472f1c22e55cc7b38a054d13d5e358d62da3ce1f8920adb28e543d81568b0"
+    }
+  ]
+}
