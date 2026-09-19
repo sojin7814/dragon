@@ -80,7 +80,7 @@ async function createImages(url, name) {
   ${textRows}
   <text x="540" y="${bottom + 45}" text-anchor="middle" font-size="28">카톡에서는 함께 보낸 링크를 눌러 여세요</text>
   <text x="540" y="${bottom + 96}" text-anchor="middle" font-size="24">종이·PC의 QR → 휴대폰 카메라 → 앱 주소 열기</text>
-  <text x="540" y="${bottom + 139}" text-anchor="middle" font-size="22" fill="#52635a">설치는 기기 안내에 따라 진행 · 개인 기록은 공유되지 않아요</text>
+  <text x="540" y="${bottom + 139}" text-anchor="middle" font-size="22" fill="#52635a">앱 열기 → 홈 화면에 설치 → 설치</text>
   </g></svg>`;
   const moduleCount = QRCode.create(url, { errorCorrectionLevel: options.errorCorrectionLevel }).modules.size;
   const modulesWithMargin = moduleCount + options.margin * 2;
@@ -106,8 +106,8 @@ function printHtml(url, name, image) {
 <style>@page{size:A4;margin:14mm}*{box-sizing:border-box}body{margin:0;color:#183b2c;background:#f5f6f2;font-family:Malgun Gothic,Apple SD Gothic Neo,sans-serif;line-height:1.5}main{max-width:760px;margin:24px auto;padding:38px;background:white;border:1px solid #d6e0d8;text-align:center}h1{font-size:38px;margin:0 0 12px}.lead{font-size:22px}img{width:100mm;max-width:100%;height:auto;display:block;margin:16px auto}.url{font:16px monospace;overflow-wrap:anywhere}section{text-align:left;background:#f5f6f2;border-radius:12px;padding:16px;margin-top:16px}h2{font-size:20px;margin:0 0 8px}p{margin:8px 0}.muted{color:#52635a}button{padding:14px 22px;font:inherit;cursor:pointer}@media print{body{background:white}main{margin:0;border:0;padding:0;max-width:none}button{display:none}section{break-inside:avoid}}</style>
 <main><h1>${escape(name)}</h1><p class="lead">내 휴무를 편하게 확인하세요</p><p class="muted">개인용 휴무 기록장 · 회사 공식 서비스가 아니에요</p>
 <img alt="정식 앱 주소 QR코드" src="${image}"><p class="url">${escape(url)}</p>
-<p class="lead">휴대폰 카메라로 QR을 비추세요<br>→ 앱 주소 열기 → 기기에 맞게 설치하기</p>
-<section><h2>갤럭시 · 지원 PC</h2><p>앱의 설치하기 버튼을 누르고 확인창을 따라가세요.<br>버튼이 없으면 앱 안의 ‘설치 방법’을 확인하세요.</p></section>
+<p class="lead">휴대폰 카메라로 QR을 비추세요<br>→ 드래곤 휴무 열기 → 홈 화면에 설치 → 설치</p>
+<section><h2>갤럭시 · 지원 PC</h2><p>앱의 ‘홈 화면에 설치’를 누른 뒤 확인창에서 설치하세요.<br>지원 브라우저에서 설치가 준비되면 버튼이 나타나요.</p></section>
 <section><h2>아이폰 · 아이패드</h2><p>Safari에서 열기 → 공유 → 홈 화면에 추가 → 추가<br>‘웹 앱으로 열기’가 보이면 켜세요.</p></section>
 <section><h2>카카오톡으로 받았다면</h2><p>같은 휴대폰에서는 함께 받은 링크를 누르세요. 설치가 안 보이면 주소를 복사해 Safari·Chrome·삼성 인터넷에서 여세요.</p></section>
 <p class="muted">QR은 앱 주소만 열어요. 자동 설치나 기록 이전·백업 기능은 아니에요.<br>기록은 각 기기에 저장돼요. 휴대폰 변경·사이트 데이터 삭제 전에는 백업해주세요.</p>
@@ -142,7 +142,7 @@ async function main() {
   const images = await createImages(url, name);
   const output = resolve(root, 'generated/qr');
   await mkdir(output, { recursive: true });
-  const shareText = `${name}: 내 휴무를 확인하고 양도·교환·대바를 기록해보세요.\n${url}\n\n위 링크를 눌러 여세요. 종이나 PC 화면의 QR은 휴대폰 카메라로 비추면 됩니다.\n갤럭시·지원 PC: 앱의 설치하기 / 아이폰: Safari 공유 → 홈 화면에 추가 → 추가\n개인용 기록장이며 회사 공식 서비스가 아닙니다. QR은 자동 설치·기록 이전·백업 기능이 아닙니다.\n`;
+  const shareText = `${name}: 내 휴무와 일정·휴무 계획을 기록해보세요.\n${url}\n\n위 링크를 눌러 여세요. 종이나 PC 화면의 QR은 휴대폰 카메라로 비추면 됩니다.\n갤럭시·지원 PC: 홈 화면에 설치 → 설치 / 아이폰: Safari 공유 → 홈 화면에 추가 → 추가\n개인용 기록장이며 회사 공식 서비스가 아닙니다. QR은 자동 설치·기록 이전·백업 기능이 아닙니다.\n`;
   await Promise.all([
     writeFile(resolve(output, 'dragon-calendar-qr.png'), images.png),
     writeFile(resolve(output, 'dragon-calendar-qr.svg'), images.svg),
