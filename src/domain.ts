@@ -104,7 +104,7 @@ export function todayKorea(): string {
   const get = (type: string) => parts.find(part => part.type === type)!.value;
   return `${get('year')}-${get('month')}-${get('day')}`;
 }
-/** Arithmetic permits adjacent out-of-range dates for grid edges and exclusive ICS end dates. */
+/** Arithmetic permits adjacent out-of-range dates for calendar grid edges. */
 export function addDays(value: string, count: number): string {
   if (!Number.isSafeInteger(count)) fail('날짜 이동 값이 올바르지 않습니다.');
   const result = new Date((dayNumber(value, false) + count) * DAY_MS);

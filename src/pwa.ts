@@ -1,20 +1,15 @@
 import { BUILD_ID } from './config';
 
 export interface PwaState {
-  install: 'available' | 'installed' | 'manual';
   update: 'none' | 'ready' | 'blocked';
   offlineReady: boolean;
   message: string;
 }
 
-interface InstallEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
+
 const CHANNEL = 'dragon-calendar-pwa';
-const state: PwaState = { install: 'manual', update: 'none', offlineReady: false, message: '' };
+const state: PwaState = { update: 'none', offlineReady: false, message: '' };
 const subscribers = new Set<(state: PwaState) => void>();
-let installEvent: InstallEvent | null = null;
 let registration: ServiceWorkerRegistration | null = null;
 let busy = false;
 let started = false;
@@ -30,9 +25,6 @@ function publish(next: Partial<PwaState>) {
   subscribers.forEach(callback => callback({ ...state }));
 }
 
-function standalone() {
-  return window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
-}
 
 function post(worker: ServiceWorker | null | undefined, data: Record<string, unknown>) {
   worker?.postMessage({ channel: CHANNEL, ...data });
@@ -116,23 +108,6 @@ export function setPwaBusy(value: boolean): void {
   if (!busy) queueAutoUpdate();
 }
 
-export async function requestInstall(): Promise<'accepted' | 'dismissed' | 'unavailable'> {
-  if (!installEvent || standalone()) return 'unavailable';
-  const event = installEvent;
-  installEvent = null;
-  publish({ install: 'manual' });
-  try {
-    // Must remain in the user's button handler; never trigger this automatically.
-    await event.prompt();
-    const { outcome } = await event.userChoice;
-    publish({ message: outcome === 'accepted' ? '설치 요청을 보냈어요. 설치 완료는 브라우저에서 확인해주세요.' : '설치를 취소했어요. 그대로 사용할 수 있어요.' });
-    return outcome;
-  } catch {
-    publish({ message: '설치창을 열 수 없어요. 설치 방법을 확인해주세요.' });
-    return 'unavailable';
-  }
-}
-
 export async function applyUpdate(): Promise<void> {
   if (busy || document.visibilityState !== 'visible') {
     publish({ update: 'blocked', message: '작성 중인 내용을 저장하거나 닫은 뒤 업데이트를 적용해주세요.' });
@@ -150,17 +125,6 @@ export function startPwa(onState: (state: PwaState) => void): () => void {
   onState({ ...state });
   if (!started) {
     started = true;
-    const display = window.matchMedia('(display-mode: standalone)');
-    const updateInstall = () => {
-      if (standalone()) { installEvent = null; publish({ install: 'installed' }); }
-    };
-    updateInstall();
-    display.addEventListener('change', updateInstall);
-    window.addEventListener('beforeinstallprompt', event => {
-      event.preventDefault();
-      if (!standalone()) { installEvent = event as InstallEvent; publish({ install: 'available' }); }
-    });
-    window.addEventListener('appinstalled', () => { installEvent = null; publish({ install: 'installed', message: '앱이 설치됐어요. 홈 화면이나 앱 목록에서 열어보세요.' }); });
     const resume = () => {
       if (document.visibilityState === 'visible') { void checkForUpdate(); queueAutoUpdate(); }
       else if (lock) { post(lock.worker, { type: 'UPDATE_CANCEL', id: lock.id }); releaseLock(); }

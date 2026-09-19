@@ -57,7 +57,7 @@ export function Share() {
   async function shareAddress() {
     if (!navigator.share) { await copyAddress(); return; }
     try {
-      await navigator.share({ title: APP_NAME, text: '내 휴무를 확인하고 일정과 휴무 계획을 기록해보세요.', url: PUBLIC_URL });
+      await navigator.share({ title: APP_NAME, text: '내 휴무와 계획을 기록하세요. 앱에서 홈 화면에 설치 버튼을 누르면 편하게 사용할 수 있어요.', url: PUBLIC_URL });
       setMessage('공유 창에서의 작업을 마쳤어요.');
     } catch (error) {
       setMessage(error instanceof Error && error.name === 'AbortError'
@@ -105,7 +105,7 @@ export function Share() {
     </>}
     {message && <p className="notice" role="status">{message}</p>}
     <p>종이나 PC 화면의 QR은 휴대폰 카메라로 비추세요. 같은 휴대폰에서 받았다면 <a href={PUBLIC_URL}>앱 주소 열기</a> 또는 주소 복사를 이용하세요.</p>
-    <p className="muted">QR은 앱 주소만 열어요. 자동 설치·기록 이전·백업 기능은 아니에요.</p>
+    <p className="muted">QR 촬영 → 드래곤 휴무 열기 → 홈 화면에 설치 → 설치. 버튼은 지원 브라우저에서 설치가 준비되면 나타나요. 카카오톡에서는 주소를 복사해 Chrome 또는 Samsung Internet에서 여세요.</p>
   </div>;
 }
 
