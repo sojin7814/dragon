@@ -38,6 +38,8 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== appURL.origin || !url.pathname.startsWith(appURL.pathname)) return;
+  // Let the browser/server handle streaming and Range requests without CacheStorage.
+  if (url.pathname.startsWith(`${appURL.pathname}assets/music/`) || request.headers?.has('range')) return;
   const navigation = request.mode === 'navigate' && (url.pathname === appURL.pathname || url.pathname === `${appURL.pathname}index.html`);
   if (!navigation && !precached.has(url.href) && !url.pathname.startsWith(`${appURL.pathname}assets/`)) return;
   event.respondWith((async () => {
