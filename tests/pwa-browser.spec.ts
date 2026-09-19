@@ -51,8 +51,8 @@ test.beforeEach(() => { nextWorker = false; failAsset = false; });
 
 async function initialize(page: Page) {
   await page.goto(origin);
-  await page.getByRole('button', { name: /A 휴무조/ }).click();
-  await page.getByRole('button', { name: '선택한 휴무조 확인' }).click();
+  await page.getByRole('button', { name: /하우스 A/ }).click();
+  await page.getByRole('button', { name: '선택한 근무 유형 확인' }).click();
   await page.getByRole('button', { name: '확인했어요 · 내 달력 시작' }).click();
   await expect(page.getByRole('heading', { name: '나의 휴무 달력' })).toBeVisible();
   await expect(page.getByText('오프라인 사용 준비됨', { exact: false })).toBeVisible();

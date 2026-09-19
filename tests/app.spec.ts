@@ -2,8 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 const key = 'dragon_calendar_data';
 async function start(page: Page) {
   await page.goto('./');
-  await page.getByRole('button', { name: /^A A 휴무조/ }).click();
-  await page.getByRole('button', { name: '선택한 휴무조 확인' }).click();
+  await page.getByRole('button', { name: /^하우스 A/ }).click();
+  await page.getByRole('button', { name: '선택한 근무 유형 확인' }).click();
   await page.getByRole('button', { name: '확인했어요 · 내 달력 시작' }).click();
   await expect(page.getByRole('heading', { name: '나의 휴무 달력' })).toBeVisible();
 }
@@ -32,14 +32,14 @@ test('onboarding, captured schedule, dark theme and responsive layouts', async (
   await page.screenshot({path:'artifacts/mobile-calendar.png',fullPage:true});
   expect(errors).toEqual([]);
 });
-test('cover, memo-only edit, cancellation preserve note and do not shift cycle', async ({page}) => {
+test('work override and cancellation preserve note and do not shift cycle', async ({page}) => {
   await start(page); await month(page,2025,12); await date(page,'2025-12-02');
-  await page.getByRole('button',{name:'대바',exact:true}).click();
+  await page.getByRole('button',{name:'근무',exact:true}).click();
   await page.getByPlaceholder('이름을 입력해주세요').fill('김하늘 <script>alert(1)</script>');
   await page.getByPlaceholder('기억할 내용을 남겨주세요').fill('오전 대신 근무\n꼭 확인');
   await page.getByRole('button',{name:'내용 확인',exact:true}).click();
   await page.getByRole('button',{name:'확인하고 저장',exact:true}).click();
-  await expect(page.getByRole('button',{name:'2025-12-02, 근무, 대바, 메모 있음',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'2025-12-02, 근무, 직접 변경, 메모 있음',exact:true})).toBeVisible();
   await date(page,'2025-12-02');
   await page.getByRole('button',{name:/변경 취소/}).click();
   await page.getByRole('button',{name:'확인하고 저장',exact:true}).click();
@@ -115,26 +115,26 @@ test('invalid stored data preserved with recovery and protected legacy keys unto
 });
 test('future group moves preserve recorded work and explain affected dates',async({page})=>{
   await start(page); await month(page,2028,10); await date(page,'2028-10-01');
-  await page.getByRole('button',{name:'대바',exact:true}).click();
+  await page.getByRole('button',{name:'근무',exact:true}).click();
   await page.getByPlaceholder('이름을 입력해주세요').fill('김수진');
   await page.getByPlaceholder('기억할 내용을 남겨주세요').fill('조 이동 뒤에도 유지');
   await page.getByRole('button',{name:'내용 확인',exact:true}).click();
   await page.getByRole('button',{name:'확인하고 저장',exact:true}).click();
   await page.getByRole('button',{name:'설정 열기'}).click();
-  await page.getByRole('button',{name:'휴무조 변경 예약'}).click();
-  await page.getByLabel('새 휴무조',{exact:true}).selectOption('C');
+  await page.getByRole('button',{name:'근무 유형 변경'}).click();
+  await page.getByLabel('새 근무 유형',{exact:true}).selectOption('C');
   await page.getByLabel('적용 시작일',{exact:true}).fill('2028-10-01');
   await page.getByRole('button',{name:'변경 내용 확인'}).click();
-  await expect(page.getByText(/2028-10-01부터 C 휴무조의 공통 순환/)).toBeVisible();
+  await expect(page.getByText(/2028-10-01부터 하우스 C의 일정 규칙/)).toBeVisible();
   await page.getByRole('button',{name:'확인하고 저장',exact:true}).click();
   await page.getByRole('button',{name:'닫기',exact:true}).click();
-  await expect(page.locator('.group-pill')).toContainText('A 휴무조');
+  await expect(page.getByRole('button',{name:'다른 근무조 보기',exact:true})).toBeVisible();
   const data=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)!),key);
   expect(data.groupChanges[0]).toMatchObject({date:'2028-10-01',group:'C'});
   expect(data.changes['2028-10-01'].person).toBe('김수진');
   expect(data.notes['2028-10-01']).toBe('조 이동 뒤에도 유지');
   await date(page,'2028-10-01');
-  await expect(page.getByText('원래 일정 · C 휴무조')).toBeVisible();
+  await expect(page.getByText('원래 일정 · 하우스 C')).toBeVisible();
 });
 test('approved public QR is visible without personal data and 320px view fits',async({page})=>{
   await start(page); await page.setViewportSize({width:320,height:720});
@@ -157,8 +157,8 @@ test('installation event lifecycle uses button, preserves cancellation, and reco
   await page.getByRole('button',{name:'설치하기',exact:true}).click();
   await expect(page.getByText('설치를 취소했어요. 그대로 사용할 수 있어요.')).toBeVisible();
   expect(await page.evaluate(()=>(window as any).promptCount)).toBe(1);
-  await page.getByRole('button',{name:/^A A 휴무조/}).click();
-  await page.getByRole('button',{name:'선택한 휴무조 확인'}).click();
+  await page.getByRole('button',{name:/^하우스 A/}).click();
+  await page.getByRole('button',{name:'선택한 근무 유형 확인'}).click();
   await page.getByRole('button',{name:'확인했어요 · 내 달력 시작'}).click();
   await page.evaluate(()=>window.dispatchEvent(new Event('appinstalled')));
   await expect(page.getByRole('button',{name:'설치형 앱으로 사용 중'})).toBeVisible();
