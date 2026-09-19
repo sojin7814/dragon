@@ -50,3 +50,9 @@ PC에 설치된 IDM이 Chrome의 일부 MP3 요청을 `204 Intercepted by the ID
 Android Chrome / Samsung Internet / iPhone의 실제 기기 재생, 블루투스, 잠금 화면·백그라운드 재생은 **미검증**입니다. Android 실제 설치창과 홈 화면 실행의 실기기 검증 상태는 `INSTALLATION_REPORT.md`를 따릅니다.
 
 공개 앱 주소: https://sojin7814.github.io/dragon/
+
+## 공개 배포 확인
+
+2026-09-20 05:25 KST, [GitHub Pages 배포 #5](https://github.com/sojin7814/dragon/actions/runs/35467283990)가 성공했습니다. 공개 서비스워커의 빌드 ID는 `bbf05ec1272956525ce1b336c64522048f78aebb`입니다.
+
+공개 `/dragon/` 주소에서 세 곡 모두 실제 재생·일시정지·탐색·가사 표시를 확인했습니다. MP3/LRC 6개는 HTTP 200으로 원본 바이트와 일치했고, MP3 구간 요청은 HTTP 206으로 응답했습니다. 재접속 시 자동 재생이 없고 테스트 기록이 그대로 유지됐으며, manifest와 5종 아이콘도 정상입니다. 사용자 실제 기록은 테스트에 사용하지 않았습니다.
