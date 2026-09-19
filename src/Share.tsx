@@ -57,7 +57,7 @@ export function Share() {
   async function shareAddress() {
     if (!navigator.share) { await copyAddress(); return; }
     try {
-      await navigator.share({ title: APP_NAME, text: '내 휴무를 확인하고 양도·교환·대바를 기록해보세요.', url: PUBLIC_URL });
+      await navigator.share({ title: APP_NAME, text: '내 휴무를 확인하고 일정과 휴무 계획을 기록해보세요.', url: PUBLIC_URL });
       setMessage('공유 창에서의 작업을 마쳤어요.');
     } catch (error) {
       setMessage(error instanceof Error && error.name === 'AbortError'
@@ -81,7 +81,7 @@ export function Share() {
   </div>;
 
   return <div className="stack">
-    <p>동료에게 앱 주소를 알려주세요. 내 휴무조·이름·메모는 함께 전달되지 않아요.</p>
+    <p>동료에게 앱 주소를 알려주세요. 내 근무 유형·이름·메모는 함께 전달되지 않아요.</p>
     <label className="stack">정식 앱 주소
       <input aria-label="정식 앱 주소" readOnly value={PUBLIC_URL} onFocus={event => event.currentTarget.select()} />
     </label>

@@ -1,4 +1,6 @@
-export type Group = 'A' | 'B' | 'C' | 'D';
+export type HouseGroup = 'A' | 'B' | 'C' | 'D';
+// Preserve the original house IDs in saved calendars and history.
+export type Group = HouseGroup | 'WEEKDAY_MON_FRI' | 'WEEKEND_FRI_SUN' | 'WEEKEND_SAT_SUN';
 export type WorkState = 'off' | 'work';
 export type Reason = 'transfer' | 'exchange' | 'cover' | 'manual';
 export type Theme = 'light' | 'dark' | 'system';

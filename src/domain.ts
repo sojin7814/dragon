@@ -1,10 +1,10 @@
 import { ANCHOR, GROUPS } from './config';
-import type { AppData, DayChange, DayInfo, Group, GroupChange } from './types';
+import type { AppData, DayChange, DayInfo, Group, GroupChange, HouseGroup } from './types';
 
 const DAY_MS = 86_400_000;
 const FIRST_DATE = '1900-01-01';
 const LAST_DATE = '2199-12-31';
-const OFFSETS: Record<Group, number> = { A: 0, B: 2, C: 4, D: 6 };
+const OFFSETS: Record<HouseGroup, number> = { A: 0, B: 2, C: 4, D: 6 };
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,120}$/;
 
 function fail(message: string): never { throw new Error(message); }
@@ -21,7 +21,7 @@ function id(value: unknown): string {
   return value;
 }
 function group(value: unknown): Group {
-  if (!GROUPS.includes(value as Group)) fail('A, B, C, D 중 휴무조를 선택해주세요.');
+  if (!GROUPS.includes(value as Group)) fail('지원하는 7가지 근무 유형 중 하나를 선택해주세요.');
   return value as Group;
 }
 function dayNumber(value: unknown, bounded = true): number {
@@ -61,13 +61,13 @@ export function validateData(value: unknown): AppData {
   const input = object(value);
   if (input.schemaVersion !== 1) fail('이 앱에서 읽을 수 없는 데이터 버전입니다. 앱을 업데이트하거나 올바른 백업을 선택해주세요.');
   if (!Number.isSafeInteger(input.revision) || (input.revision as number) < 0) fail('저장 기록 번호가 올바르지 않습니다.');
-  if (!Array.isArray(input.groupChanges) || input.groupChanges.length > 110000) fail('휴무조 변경 이력이 올바르지 않습니다.');
+  if (!Array.isArray(input.groupChanges) || input.groupChanges.length > 110000) fail('근무 유형 변경 이력이 올바르지 않습니다.');
   if (!['light', 'dark', 'system'].includes(input.theme as string)) fail('화면 테마 설정이 올바르지 않습니다.');
   const groupChanges = input.groupChanges.map(parseGroupChange).sort((a, b) => a.date.localeCompare(b.date));
   const groupIds = new Set<string>();
   const groupDates = new Set<string>();
   for (const item of groupChanges) {
-    if (groupIds.has(item.id) || groupDates.has(item.date)) fail('같은 날짜 또는 같은 식별자의 휴무조 변경이 중복되어 있습니다.');
+    if (groupIds.has(item.id) || groupDates.has(item.date)) fail('같은 날짜 또는 같은 식별자의 근무 유형 변경이 중복되어 있습니다.');
     groupIds.add(item.id); groupDates.add(item.date);
   }
   const changes: Record<string, DayChange> = {};
@@ -132,7 +132,13 @@ export function groupOn(data: AppData, value: string): Group {
   return selected;
 }
 export function isBaseOff(value: string, selected: Group): boolean {
-  const delta = dayNumber(value) - dayNumber(ANCHOR) - OFFSETS[group(selected)];
+  const number = dayNumber(value);
+  const checked = group(selected);
+  const weekday = new Date(number * DAY_MS).getUTCDay();
+  if (checked === 'WEEKDAY_MON_FRI') return weekday === 0 || weekday === 6;
+  if (checked === 'WEEKEND_FRI_SUN') return weekday >= 1 && weekday <= 4;
+  if (checked === 'WEEKEND_SAT_SUN') return weekday >= 1 && weekday <= 5;
+  const delta = number - dayNumber(ANCHOR) - OFFSETS[checked];
   return ((delta % 8) + 8) % 8 < 2;
 }
 export function dayInfo(data: AppData, value: string): DayInfo {
@@ -204,7 +210,7 @@ export function cancelChange(data: AppData, value: string): AppData {
 export function saveGroupChange(data: AppData, change: GroupChange): AppData {
   const next = validateData(data);
   const incoming = parseGroupChange(change);
-  if (next.groupChanges.some(item => item.date === incoming.date && item.id !== incoming.id)) fail('그 날짜에 이미 휴무조 변경이 있습니다. 기존 이력을 수정해주세요.');
+  if (next.groupChanges.some(item => item.date === incoming.date && item.id !== incoming.id)) fail('그 날짜에 이미 근무 유형 변경이 있습니다. 기존 이력을 수정해주세요.');
   next.groupChanges = [...next.groupChanges.filter(item => item.id !== incoming.id), incoming];
   return validateData(next);
 }

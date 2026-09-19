@@ -1,10 +1,14 @@
-import type { Group } from './types';
+import type { Group, HouseGroup } from './types';
 import appMetadata from '../assets/app.json';
 export const APP_NAME = appMetadata.name;
 export const ANCHOR = '2025-12-02';
 export const ANCHOR_CONFIRMED_ON = '2026-09-19';
-export const GROUPS: Group[] = ['A', 'B', 'C', 'D'];
-export const GROUP_LABELS: Record<Group, string> = { A: '1조~2조말', B: '2조말~4조중', C: '4조중말~6조초', D: '6조초중~7조말' };
+export const HOUSE_GROUPS: HouseGroup[] = ['A', 'B', 'C', 'D'];
+export const FIXED_GROUPS: Group[] = ['WEEKDAY_MON_FRI', 'WEEKEND_FRI_SUN', 'WEEKEND_SAT_SUN'];
+export const GROUPS: Group[] = [...HOUSE_GROUPS, ...FIXED_GROUPS];
+export const GROUP_NAMES: Record<Group, string> = { A: '하우스 A', B: '하우스 B', C: '하우스 C', D: '하우스 D', WEEKDAY_MON_FRI: '주중반 (월~금)', WEEKEND_FRI_SUN: '주말반 (금~일)', WEEKEND_SAT_SUN: '주말반 (토~일)' };
+export const GROUP_SHORT: Record<Group, string> = { A: '하A', B: '하B', C: '하C', D: '하D', WEEKDAY_MON_FRI: '주중', WEEKEND_FRI_SUN: '금~일', WEEKEND_SAT_SUN: '토~일' };
+export const GROUP_LABELS: Record<Group, string> = { A: '1조~2조말', B: '2조말~4조중', C: '4조중말~6조초', D: '6조초중~7조말', WEEKDAY_MON_FRI: '월~금 근무 · 토·일 휴무', WEEKEND_FRI_SUN: '금~일 근무 · 월~목 휴무', WEEKEND_SAT_SUN: '토~일 근무 · 월~금 휴무' };
 export const STORAGE_KEY = 'dragon_calendar_data';
 export const PUBLIC_URL = import.meta.env.VITE_PUBLIC_URL || '';
 export const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'local';

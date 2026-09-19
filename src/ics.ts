@@ -1,4 +1,4 @@
-import { APP_NAME } from './config';
+import { APP_NAME, GROUP_NAMES } from './config';
 import { addDays, dayInfo, monthDates, validateData } from './domain';
 import type { AppData } from './types';
 
@@ -10,14 +10,14 @@ export function exportEvents(data: AppData, year: number, month1: number): Calen
     const info = dayInfo(checked, date);
     if (info.state !== 'off' && !info.change && !info.note) return [];
     const actual = info.state === 'off' ? '휴무' : '근무';
-    let title = `${info.group} 휴무조 · ${actual}`;
+    let title = `${GROUP_NAMES[info.group]} · ${actual}`;
     if (info.change) {
       const who = info.change.person ? `${info.change.person} ` : '';
       title = info.change.reason === 'cover' ? `${who}대바 · 근무` : `${actual} · ${who}${REASONS[info.change.reason]}`;
     } else if (info.note && info.state === 'work') title = '메모 · 기본 근무';
     const description = [
       `${APP_NAME}에서 복사한 일정`,
-      `휴무조: ${info.group} 휴무조`,
+      `근무 유형: ${GROUP_NAMES[info.group]}`,
       `원래 일정: ${info.baseState === 'off' ? '휴무' : '기본 근무'}`,
       `실제 일정: ${actual}`,
       info.change ? `변경 이유: ${REASONS[info.change.reason]}` : '',
