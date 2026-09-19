@@ -1,0 +1,10 @@
+import type { Group } from './types';
+import appMetadata from '../assets/app.json';
+export const APP_NAME = appMetadata.name;
+export const ANCHOR = '2025-12-02';
+export const ANCHOR_CONFIRMED_ON = '2026-09-19';
+export const GROUPS: Group[] = ['A', 'B', 'C', 'D'];
+export const GROUP_LABELS: Record<Group, string> = { A: '1조~2조말', B: '2조말~4조중', C: '4조중말~6조초', D: '6조초중~7조말' };
+export const STORAGE_KEY = 'dragon_calendar_data';
+export const PUBLIC_URL = import.meta.env.VITE_PUBLIC_URL || '';
+export const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'local';
