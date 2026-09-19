@@ -34,6 +34,28 @@ function decode(buffer, expected, description) {
 
 const escape = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 
+function copyQrPixels(backgroundBuffer, qrBuffer, left, top) {
+  const background = PNG.sync.read(backgroundBuffer);
+  const qr = PNG.sync.read(qrBuffer);
+  if (!Number.isInteger(left) || !Number.isInteger(top) || left < 0 || top < 0
+    || left + qr.width > background.width || top + qr.height > background.height) {
+    throw new Error('카톡 QR 배치가 이미지 범위를 벗어났습니다.');
+  }
+  // Copy pixels only after the SVG text/background has rendered. This avoids
+  // librsvg <image href> support and any platform-dependent image resampling.
+  PNG.bitblt(qr, background, 0, 0, qr.width, qr.height, left, top);
+  const output = PNG.sync.write(background);
+  const finalImage = PNG.sync.read(output);
+  for (let row = 0; row < qr.height; row++) {
+    const sourceOffset = row * qr.width * 4;
+    const destinationOffset = ((top + row) * finalImage.width + left) * 4;
+    const sourceRow = qr.data.subarray(sourceOffset, sourceOffset + qr.width * 4);
+    const destinationRow = finalImage.data.subarray(destinationOffset, destinationOffset + qr.width * 4);
+    if (!sourceRow.equals(destinationRow)) throw new Error('카톡 안내 이미지 합성 중 QR 픽셀이 변경됐습니다.');
+  }
+  return output;
+}
+
 async function createImages(url, name) {
   const rawPng = await QRCode.toBuffer(url, { ...options, type: 'png' });
   const rawSvg = await QRCode.toString(url, { ...options, type: 'svg' });
@@ -55,13 +77,26 @@ async function createImages(url, name) {
   <text x="540" y="142" text-anchor="middle" font-size="60" font-weight="700">${escape(name)}</text>
   <text x="540" y="212" text-anchor="middle" font-size="32">내 휴무를 편하게 확인하세요</text>
   <text x="540" y="265" text-anchor="middle" font-size="25" fill="#52635a">개인용 기록장 · 회사 공식 서비스가 아니에요</text>
-  <image href="${image}" x="190" y="310" width="700" height="700"/>
   ${textRows}
   <text x="540" y="${bottom + 45}" text-anchor="middle" font-size="28">카톡에서는 함께 보낸 링크를 눌러 여세요</text>
   <text x="540" y="${bottom + 96}" text-anchor="middle" font-size="24">종이·PC의 QR → 휴대폰 카메라 → 앱 주소 열기</text>
   <text x="540" y="${bottom + 139}" text-anchor="middle" font-size="22" fill="#52635a">설치는 기기 안내에 따라 진행 · 개인 기록은 공유되지 않아요</text>
   </g></svg>`;
-  const poster = await sharp(Buffer.from(posterSvg)).png().toBuffer();
+  const moduleCount = QRCode.create(url, { errorCorrectionLevel: options.errorCorrectionLevel }).modules.size;
+  const modulesWithMargin = moduleCount + options.margin * 2;
+  const scale = Math.floor(700 / modulesWithMargin);
+  if (scale < 1) throw new Error('카톡 안내 이미지에 넣기에 QR 주소가 너무 깁니다.');
+  // Do not specify width: scale keeps every QR module an exact integer square.
+  const posterQr = await QRCode.toBuffer(url, {
+    errorCorrectionLevel: options.errorCorrectionLevel, margin: options.margin,
+    color: options.color, scale, type: 'png',
+  });
+  const qrSide = modulesWithMargin * scale;
+  const actualQr = PNG.sync.read(posterQr);
+  if (actualQr.width !== qrSide || actualQr.height !== qrSide) throw new Error('QR 정수 배율의 이미지 크기가 일치하지 않습니다.');
+  decode(posterQr, url, '카톡 QR 원본');
+  const posterBackground = await sharp(Buffer.from(posterSvg)).png().toBuffer();
+  const poster = copyQrPixels(posterBackground, posterQr, Math.floor((1080 - qrSide) / 2), 310);
   decode(poster, url, '카톡 안내 이미지');
   return { png, svg, image, poster };
 }
@@ -92,7 +127,7 @@ async function selfTest() {
   // Reserved test domain; kept entirely in memory, never exported as a production QR.
   const url = 'https://qr-verification.example/calendar/';
   await createImages(url, 'QR 생성 검증');
-  console.log('QR 자체 점검 통과: PNG·SVG·카톡 이미지 독립 디코딩 일치, 금지 주소 차단. 테스트 이미지는 저장하지 않았습니다.');
+  console.log('QR 자체 점검 통과: PNG·SVG·카톡 이미지 독립 디코딩 일치, 카톡 QR 정수 배율·픽셀 무손실 복사, 금지 주소 차단. 테스트 이미지는 저장하지 않았습니다.');
 }
 
 async function main() {
@@ -114,7 +149,7 @@ async function main() {
     writeFile(resolve(output, 'a4-install-guide.html'), printHtml(url, name, images.image)),
     writeFile(resolve(output, 'kakao-share.png'), images.poster),
     writeFile(resolve(output, 'kakao-message.txt'), shareText),
-    writeFile(resolve(output, 'verification.json'), JSON.stringify({ url, checkedAt: new Date().toISOString(), independentDecoder: 'jsQR + pngjs', png: 'pass', svgRaster: 'pass', kakaoImage: 'pass', phoneCamera: '미검증: 종이/PC 화면 실기기 촬영 필요' }, null, 2) + '\n'),
+    writeFile(resolve(output, 'verification.json'), JSON.stringify({ url, checkedAt: new Date().toISOString(), independentDecoder: 'jsQR + pngjs', png: 'pass', svgRaster: 'pass', kakaoImage: 'pass', kakaoQrPixelCopy: 'pass: integer-scale PNG copied without resizing', phoneCamera: '미검증: 종이/PC 화면 실기기 촬영 필요' }, null, 2) + '\n'),
   ]);
   console.log(`QR PNG/SVG, A4 HTML, 카톡 이미지·문구 생성 완료: ${output}\n독립 디코더와 주소 일치 확인 완료. 휴대폰 카메라 촬영은 별도로 확인해주세요.`);
 }
