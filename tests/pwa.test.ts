@@ -60,6 +60,14 @@ function worker(options: { failDownload?: boolean; clients?: Array<{ id: string;
 }
 
 describe('scoped offline shell and safe updates', () => {
+  it('leaves music and byte-range responses to the browser instead of the shell cache', () => {
+    const app = worker();
+    for (const path of ['assets/music/song.mp3?v=123','assets/music/song.lrc?v=123','another.mp3']) {
+      let intercepted = false;
+      app.handlers.fetch({request:{url:`https://example.test/dragon/${path}`,method:'GET',headers:new Headers(path==='another.mp3'?{Range:'bytes=0-99'}:{})},respondWith:()=>{intercepted=true;}});
+      expect(intercepted).toBe(false);
+    }
+  });
   it('downloads a complete new shell before activation; never skips waiting during install', async () => {
     const app = worker();
     await app.dispatch('install');

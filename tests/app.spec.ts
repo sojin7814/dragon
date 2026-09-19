@@ -59,12 +59,14 @@ test('cross-month exchange and one-date cancellation affect both linked dates',a
   await page.getByRole('button',{name:'내용 확인',exact:true}).click();
   await expect(page.getByText('두 날짜를 함께 저장합니다.')).toBeVisible();
   await page.getByRole('button',{name:'확인하고 저장',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   let data = await page.evaluate(key=>JSON.parse(localStorage.getItem(key)!),key);
   expect(data.changes['2026-03-03'].state).toBe('off');
   expect(data.changes['2026-02-28'].state).toBe('work');
   await month(page,2026,3); await date(page,'2026-03-03');
   await page.getByRole('button',{name:/변경 취소/}).click();
   await page.getByRole('button',{name:'확인하고 저장',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   data = await page.evaluate(key=>JSON.parse(localStorage.getItem(key)!),key);
   expect(Object.keys(data.changes)).toHaveLength(0);
   expect(data.notes['2026-02-28']).toBe('다음 달과 교환');

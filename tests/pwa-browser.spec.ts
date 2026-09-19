@@ -11,7 +11,7 @@ let origin: string;
 let nextWorker = false;
 let failAsset = false;
 const fixtureBase = process.env.PWA_BASE_PATH || '/dragon/';
-const contentTypes: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
+const contentTypes: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg', '.lrc': 'text/plain; charset=utf-8' };
 
 test.beforeAll(async () => {
   const root = resolve(process.env.PWA_DIST || 'dist');
@@ -85,6 +85,7 @@ test('production PWA reopens offline and saves a memo without network', async ({
   await page.getByPlaceholder('기억할 내용을 남겨주세요').fill('오프라인 기록 테스트');
   await page.getByRole('button', { name: '내용 확인' }).click();
   await page.getByRole('button', { name: '확인하고 저장' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.reload();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('dragon_calendar_data')!));
   expect(saved.calendarId).toBe(id);
@@ -144,6 +145,24 @@ test('failed update download leaves the prior version usable offline', async ({ 
   await page.reload();
   await expect(page.getByRole('heading', { name: '나의 휴무 달력' })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('dragon_calendar_data'))).toBe(prior);
+});
+
+test('music playback delays a real worker update, then pause applies it without changing calendar data', async ({ page }) => {
+  await initialize(page);
+  const prior = await page.evaluate(() => localStorage.getItem('dragon_calendar_data'));
+  await page.getByRole('button', { name: '음악 재생', exact: true }).click();
+  await expect.poll(() => page.locator('audio').evaluate((a:HTMLAudioElement) => a.currentTime)).toBeGreaterThan(.2);
+  nextWorker = true;
+  expect(await waitForNextWorker(page)).toBe('installed');
+  await expect(page.getByRole('button', { name: '업데이트 적용' })).toBeDisabled();
+  expect(await page.evaluate(async () => Boolean((await navigator.serviceWorker.getRegistration())?.waiting))).toBe(true);
+  expect(await page.locator('audio').evaluate((a:HTMLAudioElement) => a.paused)).toBe(false);
+  const navigation = page.waitForEvent('framenavigated', frame => frame === page.mainFrame());
+  await page.getByRole('button', { name: '음악 일시정지' }).click();
+  await navigation;
+  await expect(page.getByRole('heading', { name: '나의 휴무 달력' })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('dragon_calendar_data'))).toBe(prior);
+  expect(await page.locator('audio').evaluate((a:HTMLAudioElement) => a.paused)).toBe(true);
 });
 
 test('an open installation prompt delays update until the user finishes, preserving stored data', async ({ page }) => {

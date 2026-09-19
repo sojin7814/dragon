@@ -11,7 +11,7 @@ async function seed(page: Page, data: AppData) {
 }
 async function read(page: Page) { return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key); }
 async function openDate(page: Page, date: string) { await page.getByRole('button',{name:new RegExp(`^${date},`)}).click(); }
-async function saveEditor(page: Page) { await page.getByRole('button',{name:'내용 확인',exact:true}).click(); await page.getByRole('button',{name:'확인하고 저장',exact:true}).click(); }
+async function saveEditor(page: Page) { await page.getByRole('button',{name:'내용 확인',exact:true}).click(); await page.getByRole('button',{name:'확인하고 저장',exact:true}).click(); await expect(page.getByRole('dialog')).toHaveCount(0); }
 test.beforeEach(async ({page}) => { await page.clock.setFixedTime(new Date('2026-09-23T03:00:00.000Z')); });
 
 test('first-use theme is remembered and both selection sections fit a small phone',async({page})=>{
@@ -28,6 +28,7 @@ test('first-use theme is remembered and both selection sections fit a small phon
   await page.locator('.group-card').filter({has:page.getByText('하우스 A',{exact:true})}).click();
   await page.getByRole('button',{name:'선택한 근무 유형 확인'}).click();
   await page.getByRole('button',{name:'확인했어요 · 내 달력 시작'}).click();
+  await expect(page.getByRole('heading',{name:'나의 휴무 달력'})).toBeVisible();
   expect((await read(page)).theme).toBe('light');
   await page.getByRole('button',{name:'설정 열기'}).click();
   await page.emulateMedia({colorScheme:'dark'});
@@ -35,6 +36,7 @@ test('first-use theme is remembered and both selection sections fit a small phon
   await page.getByRole('button',{name:'닫기',exact:true}).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
   await page.getByRole('button',{name:'라이트모드로 전환'}).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme','light');
   expect((await read(page)).theme).toBe('light');
 });
 
@@ -76,6 +78,7 @@ for (const [name,id,offDays] of [
   await page.locator('.group-card').filter({has:page.getByText(name,{exact:true})}).click();
   await page.getByRole('button',{name:'선택한 근무 유형 확인'}).click();
   await page.getByRole('button',{name:'확인했어요 · 내 달력 시작'}).click();
+  await expect(page.getByRole('heading',{name:'나의 휴무 달력'})).toBeVisible();
   expect((await read(page)).initialGroup).toBe(id);
   for(let d=21;d<=27;d++) await expect(page.getByRole('button',{name:new RegExp(`^2026-09-${d},`)})).toHaveClass((offDays as readonly number[]).includes(d) ? /off-day/ : /work-day/);
 });
