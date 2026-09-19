@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1320" width="1080" height="1320" role="img" aria-labelledby="title description">
+  <title id="title">드래곤 휴무 카카오톡 안내 이미지 템플릿</title>
+  <desc id="description">승인된 앱 주소는 https://sojin7814.github.io/dragon/ 입니다. 실제 QR은 별도 생성 파일에 있으며 이 템플릿에는 QR을 넣지 않았습니다. 공개 배포와 접속 확인은 아직 남아 있습니다.</desc>
+  <rect width="1080" height="1320" fill="#f5f6f2"/>
+  <rect x="40" y="40" width="1000" height="1240" rx="38" fill="#ffffff"/>
+  <g font-family="Malgun Gothic,Apple SD Gothic Neo,Noto Sans CJK KR,sans-serif" text-anchor="middle" fill="#183b2c">
+    <text x="540" y="140" font-size="58" font-weight="700">드래곤 휴무</text>
+    <text x="540" y="215" font-size="32">내 휴무를 편하게 확인하세요</text>
+    <text x="540" y="270" font-size="25" fill="#52635a">개인용 기록장 · 회사 공식 서비스가 아니에요</text>
+    <rect x="195" y="345" width="690" height="520" rx="20" stroke="#7e9586" stroke-width="3" stroke-dasharray="14 10" fill="#f5f6f2"/>
+    <text x="540" y="580" font-size="40" font-weight="700">완성 QR 안내문은 별도 파일</text>
+    <text x="540" y="644" font-size="28">이 템플릿에는 QR을 넣지 않았습니다</text>
+    <text x="540" y="936" font-size="29">https://sojin7814.github.io/dragon/</text>
+    <text x="540" y="1020" font-size="30">카톡에서는 함께 보낸 링크를 눌러 여세요</text>
+    <text x="540" y="1080" font-size="26">종이·PC의 QR → 휴대폰 카메라 → 앱 주소 열기</text>
+    <text x="540" y="1160" font-size="24" fill="#52635a">설치는 기기 안내에 따라 직접 진행해요</text>
+    <text x="540" y="1210" font-size="24" fill="#52635a">내 개인 기록은 함께 공유되지 않아요</text>
+  </g>
+</svg>
