@@ -1,6 +1,6 @@
 # GitHub Pages에 처음 올리기
 
-사용자가 공개 저장소 **[sojin7814/dragon](https://github.com/sojin7814/dragon)**과 앱 주소 **[https://sojin7814.github.io/dragon/](https://sojin7814.github.io/dragon/)**를 승인했습니다. 로컬 빌드와 이 주소를 담은 QR 생성, GitHub 로그인은 완료했습니다. **소스 파일을 승인된 원격 저장소에 반영 중이며 공개 배포·접속 확인은 남아 있습니다.** 주소가 정해졌거나 일부 소스가 올라갔다는 사실만으로 앱의 공개 배포가 끝난 것은 아닙니다.
+사용자가 승인한 공개 저장소 **[sojin7814/dragon](https://github.com/sojin7814/dragon)**에서 **[드래곤 휴무 열기](https://sojin7814.github.io/dragon/)**로 배포했습니다. **2026-09-20 00:10 한국시간에 공개 주소의 HTTP 200 응답과 실제 브라우저 첫 화면을 확인했습니다.** [GitHub Actions #2](https://github.com/sojin7814/dragon/actions/runs/35450873698)에서 테스트·QR 검사·빌드·Pages 게시가 성공했습니다. 휴대폰의 실제 설치와 캘린더 가져오기, QR 카메라 촬영은 별도 미검증입니다.
 
 ## 확정된 배포 설정
 
@@ -13,7 +13,7 @@
 
 이미 존재하는 `sojin7814/dragon` 저장소의 이력을 유지하면서 이 `dragon-calendar` 폴더의 파일을 저장소 최상위에 반영합니다. 새 저장소를 다시 만들거나 기존 이력을 강제로 덮어쓰지 않습니다. 상위 폴더의 구현 문서나 다른 프로젝트를 통째로 올리지 마세요. 테스트 기대 날짜는 코드에 포함되어 있지만 사용자 캘린더 캡처, 개인 백업, 실제 이름·메모, 비밀키는 업로드하지 않습니다. `.gitignore`가 보호하는 파일도 업로드 전 직접 확인합니다.
 
-이 프로젝트의 `.github/workflows/deploy.yml`은 `main`에 반영되면 검사 후 자동 배포합니다. pull request에서는 검사만 합니다. 이 대상에 대한 사용자 승인과 GitHub 로그인은 완료됐으며, 현재 남은 단계는 파일 반영 완료와 배포 확인입니다. 이후 승인된 저장소의 `main` 변경도 같은 검사를 거쳐 자동 배포됩니다.
+이 프로젝트의 `.github/workflows/deploy.yml`은 `main`에 반영되면 검사 후 자동 배포합니다. pull request에서는 검사만 합니다. 최초 파일 반영과 공개 배포를 완료했으며 기존 README 커밋 이력을 유지했습니다. 이후 승인된 저장소의 `main` 변경도 같은 검사를 거쳐 자동 배포됩니다. 검사나 빌드가 실패하면 새 파일을 게시하지 않습니다.
 
 ## GitHub 화면에서 설정
 
@@ -26,13 +26,25 @@
 | `PUBLIC_URL` | `https://sojin7814.github.io/dragon/` |
 | `BASE_PATH` | `/dragon/`. 생략해도 `dragon` 저장소 이름에서 자동 계산합니다. |
 
-앱 주소는 `https://sojin7814.github.io/dragon/`이고, 코드 저장소 주소는 `https://github.com/sojin7814/dragon`입니다. QR에는 앱 주소를 사용합니다. 배포 완료 후 Pages가 제공하는 주소와 실제 앱 접속을 확인해야 합니다.
+앱 주소는 `https://sojin7814.github.io/dragon/`이고, 코드 저장소 주소는 `https://github.com/sojin7814/dragon`입니다. QR에는 앱 주소를 사용합니다. 2026-09-20에 Pages 공개 주소와 QR에 담긴 주소가 일치하고 실제 앱이 열리는 것을 확인했습니다.
 
 GitHub Actions는 Node.js 24와 pnpm으로 잠금 파일에 맞춰 설치하고, 자동 테스트·QR 자체 점검·타입 검사·빌드를 거칩니다. `dist/`만 Pages에 올립니다. Pages 사이트는 공개적으로 접근 가능한 웹사이트이므로 개인 기록 파일은 절대로 포함하지 마세요. [GitHub의 게시 소스 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
-## 첫 배포 확인
+## 첫 공개 배포 검증 결과
 
-승인된 `main`에 반영한 뒤 **Actions**에서 완료 여부를 확인합니다. 로컬 수정이나 로컬 빌드만으로 배포가 완료되는 것은 아닙니다.
+[GitHub Actions #2](https://github.com/sojin7814/dragon/actions/runs/35450873698)는 전체 1분 5초, 빌드 49초, 게시 8초로 성공했습니다. Vitest 76개, QR 자체 검사, 타입 검사와 빌드를 통과한 산출물이 게시되었습니다.
+
+최초 공개 확인한 빌드는 `e7174af093734e57b8df8e863f00f816ffc3ab49`입니다. 이후 문서나 코드가 `main`에 반영되면 새 빌드 식별자로 바뀔 수 있습니다.
+
+| 확인 항목 | 결과 |
+|---|---|
+| 공개 앱 주소 | 2026-09-20 00:10 한국시간 HTTP 200 |
+| 실제 브라우저 첫 화면 | 제목 ‘드래곤 휴무’, A/B/C/D·다음 휴무·192px 헤더 아이콘 정상, 오류 로그 0개 |
+| JS·CSS·manifest·서비스워커 | 모두 HTTP 200 |
+| manifest `id`·`start_url`·`scope` | 모두 `/dragon/` |
+| 공개 아이콘 5종 | 모두 HTTP 200, 로컬 생성 PNG와 바이트·SHA256·크기 일치 |
+
+이후 배포에서도 **Actions 성공 여부와 실제 접속을 각각** 확인합니다. 다음 목록의 휴대폰·OS 동작은 위 웹 접속 검사만으로 검증된 것이 아닙니다.
 
 1. Pages가 제공한 주소를 열고 설정의 앱 버전을 확인합니다.
 2. 저장소 하위 경로에서 새로고침, 아이콘, 홈 화면 실행, 달력과 기록 저장을 확인합니다.
